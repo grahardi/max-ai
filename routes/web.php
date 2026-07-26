@@ -37,10 +37,13 @@ Route::prefix('member')->name('member.')->middleware('auth')->group(function () 
 
     Route::post('folder', [MemberFolderController::class, 'store'])->name('folder.store');
     Route::patch('folder/{folder}/rename', [MemberFolderController::class, 'rename'])->name('folder.rename');
+    Route::patch('folder/{folder}/move', [MemberFolderController::class, 'move'])->name('folder.move');
     Route::delete('folder/{folder}', [MemberFolderController::class, 'destroy'])->name('folder.destroy');
 
     Route::post('upload', [MemberFileController::class, 'upload'])->name('upload');
     Route::patch('{memberFile}/rename', [MemberFileController::class, 'rename'])->name('rename');
+    Route::patch('{memberFile}/move', [MemberFileController::class, 'move'])->name('move');
+    Route::post('{memberFile}/copy', [MemberFileController::class, 'copy'])->name('copy');
     Route::get('download/{memberFile}', [MemberFileController::class, 'download'])->name('download');
     Route::delete('{memberFile}', [MemberFileController::class, 'destroy'])->name('destroy');
 });

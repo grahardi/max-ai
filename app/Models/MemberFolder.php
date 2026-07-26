@@ -60,4 +60,20 @@ class MemberFolder extends Model
 
         return $crumbs;
     }
+
+    /**
+     * Ambil semua ID folder turunan (anak, cucu, dst) secara rekursif.
+     * Dipakai untuk mencegah folder dipindah ke dalam dirinya sendiri.
+     */
+    public function descendantIds(): array
+    {
+        $ids = [];
+
+        foreach ($this->children as $child) {
+            $ids[] = $child->id;
+            $ids = array_merge($ids, $child->descendantIds());
+        }
+
+        return $ids;
+    }
 }

@@ -61,6 +61,35 @@ class MemberFolderController extends Controller
         return back()->with('success', 'Folder & seluruh isinya berhasil dihapus.');
     }
 
+    public function move(Request $request, MemberFolder $folder): RedirectResponse
+    {
+        abort_unless($folder->user_id === $request->user()->id, 403);
+
+        if ($folder->is_system) {
+            return back()->with('error', 'Folder bawaan "Hasil" tidak bisa dipindahkan.');
+        }
+
+        $data = $request->validate([
+            'parent_id' => ['nullable', 'integer', 'exists:member_folders,id'],
+        ]);
+
+        $targetId = $data['parent_id'] ?? null;
+
+        if ($targetId === $folder->id) {
+            return back()->with('error', 'Folder tidak bisa dipindahkan ke dalam dirinya sendiri.');
+        }
+
+        if ($targetId !== null && in_array($targetId, $folder->descendantIds(), true)) {
+            return back()->with('error', 'Folder tidak bisa dipindahkan ke dalam sub-foldernya sendiri.');
+        }
+
+        $target = $this->authorizedParent($request, $targetId);
+
+        $folder->update(['parent_id' => $target?->id]);
+
+        return back()->with('success', 'Folder berhasil dipindahkan.');
+    }
+
     private function deleteRecursive(MemberFolder $folder): void
     {
         foreach ($folder->children as $child) {

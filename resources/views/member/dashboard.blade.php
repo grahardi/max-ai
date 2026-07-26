@@ -85,8 +85,10 @@
 
                     @unless ($folder->is_system)
                         <div class="absolute top-2 right-2 hidden group-hover:flex gap-1">
-                            <button type="button" onclick="toggleRename('folder-{{ $folder->id }}')"
+                            <button type="button" onclick="toggleBox('folder-rename-{{ $folder->id }}')"
                                     class="text-xs bg-slate-100 hover:bg-slate-200 rounded px-1.5 py-0.5" title="Rename">✏️</button>
+                            <button type="button" onclick="toggleBox('folder-move-{{ $folder->id }}')"
+                                    class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-600 rounded px-1.5 py-0.5" title="Pindahkan">📦</button>
                             <form action="{{ route('member.folder.destroy', $folder) }}" method="POST"
                                   onsubmit="return confirm('Hapus folder \'{{ $folder->name }}\' beserta semua isinya?')">
                                 @csrf @method('DELETE')
@@ -94,12 +96,26 @@
                             </form>
                         </div>
 
-                        <form id="folder-{{ $folder->id }}" action="{{ route('member.folder.rename', $folder) }}" method="POST"
+                        <form id="folder-rename-{{ $folder->id }}" action="{{ route('member.folder.rename', $folder) }}" method="POST"
                               class="hidden mt-2 flex gap-1">
                             @csrf @method('PATCH')
                             <input type="text" name="name" value="{{ $folder->name }}" required
                                    class="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs">
                             <button type="submit" class="text-xs bg-indigo-600 text-white rounded px-2">OK</button>
+                        </form>
+
+                        <form id="folder-move-{{ $folder->id }}" action="{{ route('member.folder.move', $folder) }}" method="POST"
+                              class="hidden mt-2 flex gap-1">
+                            @csrf @method('PATCH')
+                            <select name="parent_id" class="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs">
+                                <option value="">📁 My Drive (root)</option>
+                                @foreach ($folderOptions as $opt)
+                                    @if ($opt['id'] !== $folder->id)
+                                        <option value="{{ $opt['id'] }}">{{ $opt['label'] }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <button type="submit" class="text-xs bg-amber-500 text-white rounded px-2">Pindah</button>
                         </form>
                     @endunless
                 </div>
@@ -115,7 +131,7 @@
 
         @forelse ($files as $file)
             <div class="px-5 py-3 border-b last:border-0 hover:bg-slate-50">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-wrap gap-2">
                     <div class="flex items-center gap-3 min-w-0">
                         <span class="h-9 w-9 flex items-center justify-center rounded-lg bg-indigo-50 text-lg shrink-0">
                             {{ $file->isImage() ? '🖼️' : ($file->isPdf() ? '📄' : '📁') }}
@@ -127,18 +143,43 @@
                     </div>
                     <div class="flex items-center gap-3 shrink-0 text-sm font-medium">
                         <a href="{{ route('member.download', $file) }}" class="text-indigo-600 hover:underline">Download</a>
-                        <button type="button" onclick="toggleRename('file-{{ $file->id }}')" class="text-slate-500 hover:underline">Rename</button>
+                        <button type="button" onclick="toggleBox('file-rename-{{ $file->id }}')" class="text-slate-500 hover:underline">Rename</button>
+                        <button type="button" onclick="toggleBox('file-move-{{ $file->id }}')" class="text-amber-600 hover:underline">Pindahkan</button>
+                        <button type="button" onclick="toggleBox('file-copy-{{ $file->id }}')" class="text-emerald-600 hover:underline">Salin</button>
                         <form action="{{ route('member.destroy', $file) }}" method="POST" onsubmit="return confirm('Hapus file ini?')">
                             @csrf @method('DELETE')
                             <button type="submit" class="text-rose-500 hover:underline">Hapus</button>
                         </form>
                     </div>
                 </div>
-                <form id="file-{{ $file->id }}" action="{{ route('member.rename', $file) }}" method="POST" class="hidden mt-2 flex gap-2">
+
+                <form id="file-rename-{{ $file->id }}" action="{{ route('member.rename', $file) }}" method="POST" class="hidden mt-2 flex gap-2">
                     @csrf @method('PATCH')
                     <input type="text" name="name" value="{{ $file->original_name }}" required
                            class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
                     <button type="submit" class="text-sm bg-indigo-600 text-white rounded-lg px-3">Simpan</button>
+                </form>
+
+                <form id="file-move-{{ $file->id }}" action="{{ route('member.move', $file) }}" method="POST" class="hidden mt-2 flex gap-2">
+                    @csrf @method('PATCH')
+                    <select name="folder_id" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+                        <option value="">📁 My Drive (root)</option>
+                        @foreach ($folderOptions as $opt)
+                            <option value="{{ $opt['id'] }}" {{ $currentFolder?->id === $opt['id'] ? 'selected' : '' }}>{{ $opt['label'] }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="text-sm bg-amber-500 text-white rounded-lg px-3">Pindah</button>
+                </form>
+
+                <form id="file-copy-{{ $file->id }}" action="{{ route('member.copy', $file) }}" method="POST" class="hidden mt-2 flex gap-2">
+                    @csrf
+                    <select name="folder_id" class="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm">
+                        <option value="">📁 My Drive (root)</option>
+                        @foreach ($folderOptions as $opt)
+                            <option value="{{ $opt['id'] }}" {{ $currentFolder?->id === $opt['id'] ? 'selected' : '' }}>{{ $opt['label'] }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="text-sm bg-emerald-600 text-white rounded-lg px-3">Salin ke sini</button>
                 </form>
             </div>
         @empty
@@ -149,7 +190,7 @@
 </section>
 
 <script>
-    function toggleRename(id) {
+    function toggleBox(id) {
         document.getElementById(id).classList.toggle('hidden');
     }
 </script>

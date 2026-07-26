@@ -120,8 +120,9 @@ Fitur register/login + file manager pribadi per user, lengkap dengan folder.
 
 **Fitur file manager:**
 - Buat folder, masuk ke dalam folder (breadcrumb navigasi), rename & hapus folder (hapus folder = hapus semua isi di dalamnya)
-- Upload, rename, download, hapus file
-- Folder bawaan **"Hasil"** otomatis dibuat saat user daftar — tidak bisa dihapus/rename. Semua hasil proses dari tools (Remove Background, Gambar ke PDF, Gabung PDF, Pecah PDF) otomatis tersimpan ke folder ini kalau user sedang login, jadi tidak perlu download manual lalu upload ulang.
+- Upload, rename, **pindahkan (move)**, **salin (copy)**, download, hapus file
+- **Pindahkan folder** ke folder lain (dicegah pindah ke dalam dirinya sendiri/sub-foldernya)
+- Folder bawaan **"Hasil"** otomatis dibuat saat user daftar — tidak bisa dihapus/rename/dipindah. Semua hasil proses dari tools (Remove Background, Gambar ke PDF, Gabung PDF, Pecah PDF, **Gambar ke Teks/OCR**) otomatis tersimpan ke folder ini kalau user sedang login, jadi tidak perlu download manual lalu upload ulang.
 
 **Keamanan upload file member:**
 - Hanya ekstensi di whitelist (`config/uploads.php`) yang diterima — sengaja tidak menyertakan `php`, `phtml`, `js`, `html`, `svg`, `exe`, `sh`, dll agar file yang diupload tidak bisa dieksekusi sebagai script.

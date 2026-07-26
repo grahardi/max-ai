@@ -38,6 +38,9 @@ class MemberFileController extends Controller
         $usedBytes = $user->memberFiles()->sum('size');
         $quotaBytes = config('uploads.quota_mb_per_user') * 1024 * 1024;
 
+        $allFolders = $user->memberFolders()->orderBy('name')->get(['id', 'parent_id', 'name']);
+        $folderOptions = $this->buildFolderOptions($allFolders);
+
         return view('member.dashboard', [
             'currentFolder' => $folder,
             'breadcrumbs' => $folder ? $folder->breadcrumbs() : [],
@@ -45,7 +48,27 @@ class MemberFileController extends Controller
             'files' => $files,
             'usedBytes' => $usedBytes,
             'quotaBytes' => $quotaBytes,
+            'folderOptions' => $folderOptions,
         ]);
+    }
+
+    /**
+     * Ubah daftar folder flat jadi list berjenjang (id, label berindentasi)
+     * untuk dropdown pemilihan folder tujuan pindah/salin.
+     */
+    private function buildFolderOptions($allFolders, ?int $parentId = null, int $depth = 0): array
+    {
+        $options = [];
+
+        foreach ($allFolders->where('parent_id', $parentId) as $folder) {
+            $options[] = [
+                'id' => $folder->id,
+                'label' => str_repeat('— ', $depth).$folder->name,
+            ];
+            $options = array_merge($options, $this->buildFolderOptions($allFolders, $folder->id, $depth + 1));
+        }
+
+        return $options;
     }
 
     public function upload(Request $request): RedirectResponse
@@ -141,6 +164,58 @@ class MemberFileController extends Controller
         $memberFile->delete();
 
         return back()->with('success', 'File berhasil dihapus.');
+    }
+
+    public function move(Request $request, MemberFile $memberFile): RedirectResponse
+    {
+        abort_unless($memberFile->user_id === $request->user()->id, 403);
+
+        $data = $request->validate([
+            'folder_id' => ['nullable', 'integer', 'exists:member_folders,id'],
+        ]);
+
+        $target = $this->authorizedFolder($request, $data['folder_id'] ?? null);
+
+        $memberFile->update(['folder_id' => $target?->id]);
+
+        return back()->with('success', 'File berhasil dipindahkan.');
+    }
+
+    public function copy(Request $request, MemberFile $memberFile): RedirectResponse
+    {
+        abort_unless($memberFile->user_id === $request->user()->id, 403);
+
+        $data = $request->validate([
+            'folder_id' => ['nullable', 'integer', 'exists:member_folders,id'],
+        ]);
+
+        $target = $this->authorizedFolder($request, $data['folder_id'] ?? null);
+        $user = $request->user();
+
+        $usedBytes = $user->memberFiles()->sum('size');
+        $quotaBytes = config('uploads.quota_mb_per_user') * 1024 * 1024;
+
+        if ($usedBytes + $memberFile->size > $quotaBytes) {
+            return back()->with('error', 'Kuota penyimpanan kamu penuh, tidak bisa menyalin file.');
+        }
+
+        $sourcePath = Storage::disk('public')->path($memberFile->storage_path);
+        abort_unless(file_exists($sourcePath), 404);
+
+        $newStoredName = Str::uuid().'.'.$memberFile->extension;
+        Storage::disk('public')->put('members/'.$user->id.'/'.$newStoredName, file_get_contents($sourcePath));
+
+        MemberFile::create([
+            'user_id' => $user->id,
+            'folder_id' => $target?->id,
+            'original_name' => $memberFile->original_name,
+            'stored_name' => $newStoredName,
+            'extension' => $memberFile->extension,
+            'mime_type' => $memberFile->mime_type,
+            'size' => $memberFile->size,
+        ]);
+
+        return back()->with('success', 'File berhasil disalin.');
     }
 
     private function authorizedFolder(Request $request, ?int $folderId): ?MemberFolder
