@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Intervention\Image\ImageManager;
+use RuntimeException;
 use Throwable;
 
 class RemoveBackgroundController extends Controller
@@ -146,26 +146,53 @@ class RemoveBackgroundController extends Controller
         abort_unless($record->status === 'done' && $record->result_path, 404);
 
         try {
-            $manager = ImageManager::gd();
-            $foreground = $manager->read(Storage::disk('public')->path($record->result_path));
+            $foregroundPath = Storage::disk('public')->path($record->result_path);
+            $foreground = @imagecreatefrompng($foregroundPath);
 
-            if ($request->hasFile('bg_image')) {
-                $background = $manager->read($request->file('bg_image')->getRealPath());
-                $background->cover($foreground->width(), $foreground->height());
-            } else {
-                $color = $request->input('color', '#ffffff');
-                $color = Str::startsWith($color, '#') ? $color : '#'.$color;
-                $background = $manager->create($foreground->width(), $foreground->height())->fill($color);
+            if ($foreground === false) {
+                throw new RuntimeException('Gagal membaca gambar hasil remove background.');
             }
 
-            $background->place($foreground, 'top-left', 0, 0);
+            imagesavealpha($foreground, true);
+            imagealphablending($foreground, true);
+
+            $width = imagesx($foreground);
+            $height = imagesy($foreground);
+
+            $canvas = imagecreatetruecolor($width, $height);
+
+            if ($request->hasFile('bg_image')) {
+                $this->paintCoverBackground(
+                    $canvas,
+                    $request->file('bg_image')->getRealPath(),
+                    $request->file('bg_image')->getMimeType(),
+                    $width,
+                    $height
+                );
+            } else {
+                $hex = ltrim($request->input('color') ?: 'ffffff', '#');
+                if (! preg_match('/^[0-9A-Fa-f]{6}$/', $hex)) {
+                    $hex = 'ffffff';
+                }
+                [$r, $g, $b] = array_map('hexdec', str_split($hex, 2));
+                $bgColor = imagecolorallocate($canvas, $r, $g, $b);
+                imagefilledrectangle($canvas, 0, 0, $width, $height, $bgColor);
+            }
+
+            // Tempel foreground (transparan) di atas canvas berwarna, alpha diblend otomatis oleh GD.
+            imagealphablending($canvas, true);
+            imagecopy($canvas, $foreground, 0, 0, 0, 0, $width, $height);
 
             $filename = 'results/'.Str::uuid().'.png';
             Storage::disk('public')->makeDirectory('results');
-            $background->save(Storage::disk('public')->path($filename));
+            $outputPath = Storage::disk('public')->path($filename);
+            imagepng($canvas, $outputPath);
+
+            imagedestroy($foreground);
+            imagedestroy($canvas);
 
             $this->saveResultToMemberHasil(
-                Storage::disk('public')->path($filename),
+                $outputPath,
                 pathinfo($record->original_name, PATHINFO_FILENAME).'-background-baru.png',
                 'png',
                 'image/png'
@@ -182,6 +209,41 @@ class RemoveBackgroundController extends Controller
                 ->with('error', 'Gagal mengganti background: '.$e->getMessage())
                 ->with('result', $record);
         }
+    }
+
+    /**
+     * Isi $canvas dengan gambar background yang di-cover-fit (scale + crop tengah)
+     * supaya menutupi seluruh area $targetWidth x $targetHeight.
+     */
+    private function paintCoverBackground($canvas, string $imagePath, ?string $mimeType, int $targetWidth, int $targetHeight): void
+    {
+        $source = match ($mimeType) {
+            'image/png' => @imagecreatefrompng($imagePath),
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($imagePath) : false,
+            default => @imagecreatefromjpeg($imagePath),
+        };
+
+        if ($source === false || $source === null) {
+            throw new RuntimeException('Gagal membaca gambar background yang diupload.');
+        }
+
+        $srcWidth = imagesx($source);
+        $srcHeight = imagesy($source);
+
+        $scale = max($targetWidth / $srcWidth, $targetHeight / $srcHeight);
+        $scaledWidth = max(1, (int) ceil($srcWidth * $scale));
+        $scaledHeight = max(1, (int) ceil($srcHeight * $scale));
+
+        $resized = imagecreatetruecolor($scaledWidth, $scaledHeight);
+        imagecopyresampled($resized, $source, 0, 0, 0, 0, $scaledWidth, $scaledHeight, $srcWidth, $srcHeight);
+
+        $offsetX = (int) (($scaledWidth - $targetWidth) / 2);
+        $offsetY = (int) (($scaledHeight - $targetHeight) / 2);
+
+        imagecopy($canvas, $resized, 0, 0, $offsetX, $offsetY, $targetWidth, $targetHeight);
+
+        imagedestroy($source);
+        imagedestroy($resized);
     }
 
     /**
