@@ -19,10 +19,11 @@ Laravel **tidak** melakukan proses AI langsung di PHP. Laravel menerima upload, 
 ## Persiapan
 
 ### 1. Requirement
-- PHP 8.5 + ekstensi: `pdo_pgsql`, `mbstring`, `xml`, `curl`, `gd`
+- PHP 8.5 + ekstensi: `pdo_pgsql`, `mbstring`, `xml`, `curl`, `gd`, `zip`
 - Composer 2.x
 - PostgreSQL 15+
-- Python 3.10+ (untuk microservice rembg)
+- Python 3.10+ (untuk microservice rembg, khusus fitur Remove Background)
+- **Tesseract OCR** (untuk fitur Gambar ke Teks): `sudo apt install tesseract-ocr tesseract-ocr-ind`
 - Node.js (opsional, jika ingin build asset; saat ini Tailwind dipakai via CDN jadi tidak wajib)
 
 ### 2. Install dependency Laravel
@@ -85,20 +86,28 @@ php artisan serve
 
 Buka `http://localhost:8000` lalu klik tool **Remove Background**.
 
-## Struktur fitur Remove Background
+## Menu & Fitur
 
-| File | Fungsi |
+**Home** - katalog semua tools.
+
+**Proses Gambar:**
+| Tool | File utama |
 |---|---|
-| `routes/web.php` | Route `GET/POST /tools/remove-background` |
-| `app/Http/Controllers/Tools/RemoveBackgroundController.php` | Validasi upload, panggil microservice, simpan hasil |
-| `app/Models/ProcessedImage.php` | Riwayat gambar yang diproses |
-| `database/migrations/*_create_processed_images_table.php` | Tabel riwayat |
-| `resources/views/tools/remove-background.blade.php` | Halaman upload & hasil |
-| `python-service/main.py` | Microservice FastAPI + rembg (U2Net) |
+| Remove Background | `app/Http/Controllers/Tools/RemoveBackgroundController.php` + `python-service/main.py` (microservice FastAPI + rembg/U2Net) |
+| Gambar ke PDF | `app/Http/Controllers/Tools/ImageToPdfController.php` (pakai TCPDF) |
+| Gambar ke Teks (OCR) | `app/Http/Controllers/Tools/ImageToTextController.php` (pakai Tesseract OCR via `thiagoalessio/tesseract_ocr`) |
+
+**Proses PDF:**
+| Tool | File utama |
+|---|---|
+| Gabung PDF (Merge) | `app/Http/Controllers/Tools/PdfMergeController.php` (pakai FPDI + TCPDF) |
+| Pecah PDF (Split) | `app/Http/Controllers/Tools/PdfSplitController.php` (pakai FPDI + TCPDF, hasil di-zip) |
+
+**Tool Lainnya:** placeholder untuk pengembangan berikutnya (Text to Image, Speech to Text, PDF Summarizer).
 
 ## Roadmap tools berikutnya
 
-Landing page (`resources/views/home/index.blade.php`) sudah disiapkan sebagai katalog, tinggal tambah card baru untuk tool berikutnya (Text to Image, Speech to Text, PDF Summarizer, dll) mengikuti pola folder `app/Http/Controllers/Tools/`.
+Landing page (`resources/views/home/index.blade.php`) sudah dikelompokkan per kategori, tinggal tambah card baru mengikuti pola folder `app/Http/Controllers/Tools/`.
 
 ## Catatan keamanan
 
