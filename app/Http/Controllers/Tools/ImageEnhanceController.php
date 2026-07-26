@@ -39,9 +39,13 @@ class ImageEnhanceController extends Controller
             $memberFile = $this->resolveMemberFile((int) $request->member_file_id, self::IMAGE_EXTENSIONS);
             $sourcePath = $this->memberFileAbsolutePath($memberFile);
             $originalName = $memberFile->original_name;
+            $mimeType = $memberFile->mime_type ?: 'image/jpeg';
+            $sendFilename = 'file.'.$memberFile->extension;
         } else {
             $sourcePath = $request->file('photo')->getRealPath();
             $originalName = $request->file('photo')->getClientOriginalName();
+            $mimeType = $request->file('photo')->getMimeType();
+            $sendFilename = 'file.'.strtolower($request->file('photo')->getClientOriginalExtension());
         }
 
         try {
@@ -55,7 +59,8 @@ class ImageEnhanceController extends Controller
                     [
                         'name' => 'file',
                         'contents' => fopen($sourcePath, 'r'),
-                        'filename' => basename($sourcePath),
+                        'filename' => $sendFilename,
+                        'headers' => ['Content-Type' => $mimeType],
                     ],
                     [
                         'name' => 'scale',
