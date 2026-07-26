@@ -69,6 +69,8 @@ Route::prefix('tools')->name('tools.')->group(function () {
         ->name('remove-background.process');
     Route::delete('remove-background/{processedImage}', [RemoveBackgroundController::class, 'destroy'])
         ->name('remove-background.destroy');
+    Route::post('remove-background/background', [RemoveBackgroundController::class, 'applyBackground'])
+        ->name('remove-background.background');
 
     Route::get('image-to-pdf', [ImageToPdfController::class, 'create'])
         ->name('image-to-pdf');

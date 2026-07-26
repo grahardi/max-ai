@@ -94,7 +94,7 @@ Buka `http://localhost:8000` lalu klik tool **Remove Background**.
 **Proses Gambar:**
 | Tool | File utama |
 |---|---|
-| Remove Background | `app/Http/Controllers/Tools/RemoveBackgroundController.php` + `python-service/main.py` (microservice FastAPI + rembg/U2Net) |
+| Remove Background | `app/Http/Controllers/Tools/RemoveBackgroundController.php` + `python-service/main.py` (microservice FastAPI + rembg/U2Net). Termasuk **Ganti Background** (warna solid atau gambar sendiri) via `applyBackground()`, pakai Intervention Image untuk kompositing. |
 | Gambar ke PDF | `app/Http/Controllers/Tools/ImageToPdfController.php` (pakai TCPDF) |
 | Gambar ke Teks (OCR) | `app/Http/Controllers/Tools/ImageToTextController.php` (pakai Tesseract OCR via `thiagoalessio/tesseract_ocr`) |
 | Perkecil Ukuran Gambar | `app/Http/Controllers/Tools/ImageCompressController.php` (pakai Intervention Image, murni PHP) |

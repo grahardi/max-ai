@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Intervention\Image\ImageManager;
+use Throwable;
 
 class RemoveBackgroundController extends Controller
 {
@@ -105,6 +107,8 @@ class RemoveBackgroundController extends Controller
                 'image/png'
             );
 
+            $request->session()->put('remove_bg_last_id', $record->id);
+
             return redirect()
                 ->route('tools.remove-background')
                 ->with('success', 'Background berhasil dihapus!')
@@ -118,6 +122,65 @@ class RemoveBackgroundController extends Controller
             return redirect()
                 ->route('tools.remove-background')
                 ->with('error', 'Gagal memproses gambar. Pastikan service remove-background (Python/rembg) sedang berjalan.');
+        }
+    }
+
+    /**
+     * Ganti background hasil remove-bg dengan warna solid atau gambar sendiri.
+     * Selalu meng-komposit dari file transparan asli (result_path), tidak pernah menimpanya,
+     * supaya bisa ganti warna berkali-kali tanpa background sebelumnya "menempel".
+     */
+    public function applyBackground(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'processed_image_id' => ['required', 'integer', 'exists:processed_images,id'],
+            'color' => ['nullable', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
+            'bg_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+        ]);
+
+        $lastId = (int) $request->session()->get('remove_bg_last_id');
+
+        abort_unless($lastId > 0 && $lastId === (int) $request->processed_image_id, 403);
+
+        $record = ProcessedImage::findOrFail($request->processed_image_id);
+        abort_unless($record->status === 'done' && $record->result_path, 404);
+
+        try {
+            $manager = ImageManager::gd();
+            $foreground = $manager->read(Storage::disk('public')->path($record->result_path));
+
+            if ($request->hasFile('bg_image')) {
+                $background = $manager->read($request->file('bg_image')->getRealPath());
+                $background->cover($foreground->width(), $foreground->height());
+            } else {
+                $color = $request->input('color', '#ffffff');
+                $color = Str::startsWith($color, '#') ? $color : '#'.$color;
+                $background = $manager->create($foreground->width(), $foreground->height())->fill($color);
+            }
+
+            $background->place($foreground, 'top-left', 0, 0);
+
+            $filename = 'results/'.Str::uuid().'.png';
+            Storage::disk('public')->makeDirectory('results');
+            $background->save(Storage::disk('public')->path($filename));
+
+            $this->saveResultToMemberHasil(
+                Storage::disk('public')->path($filename),
+                pathinfo($record->original_name, PATHINFO_FILENAME).'-background-baru.png',
+                'png',
+                'image/png'
+            );
+
+            return redirect()
+                ->route('tools.remove-background')
+                ->with('success', 'Background berhasil diganti!')
+                ->with('result', $record)
+                ->with('composited_url', asset('storage/'.$filename));
+        } catch (Throwable $e) {
+            return redirect()
+                ->route('tools.remove-background')
+                ->with('error', 'Gagal mengganti background: '.$e->getMessage())
+                ->with('result', $record);
         }
     }
 

@@ -45,22 +45,60 @@
 
     @if (session('result'))
         @php($result = session('result'))
+        @php($displayUrl = session('composited_url') ?? $result->result_url)
         <div class="mt-10 grid sm:grid-cols-2 gap-6">
             <div>
                 <p class="text-sm font-medium text-slate-500 mb-2">Foto Asli</p>
                 <img src="{{ $result->original_url }}" class="rounded-xl border border-slate-200 w-full object-contain" alt="Foto asli">
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-2">Hasil (Background Dihapus)</p>
+                <p class="text-sm font-medium text-slate-500 mb-2">Hasil</p>
                 <div class="rounded-xl border border-slate-200 p-2"
                      style="background-image: linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%); background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0;">
-                    <img src="{{ $result->result_url }}" class="w-full object-contain" alt="Hasil remove background">
+                    <img src="{{ $displayUrl }}" class="w-full object-contain" alt="Hasil remove background">
                 </div>
-                <a href="{{ $result->result_url }}" download
+                <a href="{{ $displayUrl }}" download
                    class="mt-3 inline-flex w-full justify-center rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium py-2.5">
                     Download PNG
                 </a>
             </div>
+        </div>
+
+        {{-- Ganti Background --}}
+        <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
+            <p class="text-sm font-semibold text-slate-700 mb-1">🎨 Ganti Background</p>
+            <p class="text-xs text-slate-400 mb-4">Pilih warna solid, atau upload gambar background sendiri. Bisa ganti berkali-kali, hasil selalu diambil dari potongan transparan asli.</p>
+
+            <form action="{{ route('tools.remove-background.background') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <input type="hidden" name="processed_image_id" value="{{ $result->id }}">
+
+                <div>
+                    <p class="text-xs font-medium text-slate-500 mb-2">Warna solid</p>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @foreach (['#ffffff' => 'Putih', '#000000' => 'Hitam', '#ef4444' => 'Merah', '#3b82f6' => 'Biru', '#22c55e' => 'Hijau', '#f59e0b' => 'Kuning', '#94a3b8' => 'Abu-abu'] as $hex => $label)
+                            <button type="submit" name="color" value="{{ $hex }}" title="{{ $label }}"
+                                    class="h-9 w-9 rounded-full border-2 border-slate-200 hover:border-brand-500 transition"
+                                    style="background-color: {{ $hex }}"></button>
+                        @endforeach
+
+                        <label class="h-9 w-9 rounded-full border-2 border-dashed border-slate-300 hover:border-brand-500 flex items-center justify-center cursor-pointer text-slate-400 text-xs relative overflow-hidden">
+                            🎨
+                            <input type="color" name="color" onchange="this.form.requestSubmit()"
+                                   class="absolute inset-0 opacity-0 cursor-pointer">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t">
+                    <p class="text-xs font-medium text-slate-500 mb-2">Atau upload gambar background sendiri</p>
+                    <input type="file" name="bg_image" accept="image/png,image/jpeg,image/webp"
+                           onchange="this.form.requestSubmit()"
+                           class="text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-brand-50 file:text-brand-600 file:text-xs file:font-medium hover:file:bg-brand-100">
+                </div>
+            </form>
+            @error('color')<p class="text-sm text-rose-600 mt-2">{{ $message }}</p>@enderror
+            @error('bg_image')<p class="text-sm text-rose-600 mt-2">{{ $message }}</p>@enderror
         </div>
     @endif
 
