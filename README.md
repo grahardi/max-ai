@@ -97,6 +97,8 @@ Buka `http://localhost:8000` lalu klik tool **Remove Background**.
 | Remove Background | `app/Http/Controllers/Tools/RemoveBackgroundController.php` + `python-service/main.py` (microservice FastAPI + rembg/U2Net) |
 | Gambar ke PDF | `app/Http/Controllers/Tools/ImageToPdfController.php` (pakai TCPDF) |
 | Gambar ke Teks (OCR) | `app/Http/Controllers/Tools/ImageToTextController.php` (pakai Tesseract OCR via `thiagoalessio/tesseract_ocr`) |
+| Perkecil Ukuran Gambar | `app/Http/Controllers/Tools/ImageCompressController.php` (pakai Intervention Image, murni PHP) |
+| Perjelas & Perbesar Gambar | `app/Http/Controllers/Tools/ImageEnhanceController.php` + endpoint `/enhance-image` di `python-service/main.py` (Pillow: upscale Lanczos + Unsharp Mask) |
 
 **Proses PDF:**
 | Tool | File utama |

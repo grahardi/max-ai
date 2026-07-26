@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Member\MemberFileController;
 use App\Http\Controllers\Member\MemberFolderController;
 use App\Http\Controllers\Tools\EncryptionController;
+use App\Http\Controllers\Tools\ImageCompressController;
+use App\Http\Controllers\Tools\ImageEnhanceController;
 use App\Http\Controllers\Tools\ImageToPdfController;
 use App\Http\Controllers\Tools\ImageToTextController;
 use App\Http\Controllers\Tools\PdfCompressController;
@@ -77,6 +79,16 @@ Route::prefix('tools')->name('tools.')->group(function () {
         ->name('image-to-text');
     Route::post('image-to-text', [ImageToTextController::class, 'store'])
         ->name('image-to-text.process');
+
+    Route::get('compress-image', [ImageCompressController::class, 'create'])
+        ->name('compress-image');
+    Route::post('compress-image', [ImageCompressController::class, 'store'])
+        ->name('compress-image.process');
+
+    Route::get('enhance-image', [ImageEnhanceController::class, 'create'])
+        ->name('enhance-image');
+    Route::post('enhance-image', [ImageEnhanceController::class, 'store'])
+        ->name('enhance-image.process');
 
     // ===== Proses PDF =====
     Route::get('merge-pdf', [PdfMergeController::class, 'create'])

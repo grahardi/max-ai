@@ -53,6 +53,22 @@
                 <p class="mt-1 text-sm text-slate-500">Ekstrak teks dari foto atau hasil scan secara otomatis.</p>
                 <span class="mt-4 inline-flex text-sm font-medium text-indigo-600">Coba sekarang &rarr;</span>
             </a>
+
+            <a href="{{ route('tools.compress-image') }}"
+               class="group rounded-2xl border border-indigo-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-2xl mb-4 shadow-sm">🗜️</div>
+                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-indigo-600">Perkecil Ukuran Gambar</h3>
+                <p class="mt-1 text-sm text-slate-500">Kompres foto biar ukuran filenya lebih kecil, atur kualitas & lebar.</p>
+                <span class="mt-4 inline-flex text-sm font-medium text-indigo-600">Coba sekarang &rarr;</span>
+            </a>
+
+            <a href="{{ route('tools.enhance-image') }}"
+               class="group rounded-2xl border border-indigo-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-pink-500 flex items-center justify-center text-2xl mb-4 shadow-sm">✨</div>
+                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-indigo-600">Perjelas & Perbesar Gambar</h3>
+                <p class="mt-1 text-sm text-slate-500">Perbesar resolusi & pertajam detail gambar buram atau kecil.</p>
+                <span class="mt-4 inline-flex text-sm font-medium text-indigo-600">Coba sekarang &rarr;</span>
+            </a>
         </div>
     </div>
 

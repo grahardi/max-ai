@@ -51,6 +51,8 @@
                             <a href="{{ route('tools.remove-background') }}" class="block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600">Remove Background</a>
                             <a href="{{ route('tools.image-to-pdf') }}" class="block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600">Gambar ke PDF</a>
                             <a href="{{ route('tools.image-to-text') }}" class="block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600">Gambar ke Teks (OCR)</a>
+                            <a href="{{ route('tools.compress-image') }}" class="block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600">Perkecil Ukuran Gambar</a>
+                            <a href="{{ route('tools.enhance-image') }}" class="block px-4 py-2.5 text-sm hover:bg-indigo-50 hover:text-indigo-600">Perjelas & Perbesar Gambar</a>
                         </div>
                     </div>
                 </div>
@@ -140,6 +142,8 @@
                     <a href="{{ route('tools.remove-background') }}" class="block py-1.5 text-slate-600">Remove Background</a>
                     <a href="{{ route('tools.image-to-pdf') }}" class="block py-1.5 text-slate-600">Gambar ke PDF</a>
                     <a href="{{ route('tools.image-to-text') }}" class="block py-1.5 text-slate-600">Gambar ke Teks (OCR)</a>
+                    <a href="{{ route('tools.compress-image') }}" class="block py-1.5 text-slate-600">Perkecil Ukuran Gambar</a>
+                    <a href="{{ route('tools.enhance-image') }}" class="block py-1.5 text-slate-600">Perjelas & Perbesar Gambar</a>
                 </div>
 
                 <div>
