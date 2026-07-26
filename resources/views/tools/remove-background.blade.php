@@ -84,7 +84,7 @@
 
                         <label class="h-9 w-9 rounded-full border-2 border-dashed border-slate-300 hover:border-brand-500 flex items-center justify-center cursor-pointer text-slate-400 text-xs relative overflow-hidden">
                             🎨
-                            <input type="color" name="color" onchange="this.form.requestSubmit()"
+                            <input type="color" name="custom_color" onchange="this.form.requestSubmit()"
                                    class="absolute inset-0 opacity-0 cursor-pointer">
                         </label>
                     </div>

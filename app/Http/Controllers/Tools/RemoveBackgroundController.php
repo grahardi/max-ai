@@ -135,6 +135,7 @@ class RemoveBackgroundController extends Controller
         $request->validate([
             'processed_image_id' => ['required', 'integer', 'exists:processed_images,id'],
             'color' => ['nullable', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
+            'custom_color' => ['nullable', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
             'bg_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
         ]);
 
@@ -170,7 +171,7 @@ class RemoveBackgroundController extends Controller
                     $height
                 );
             } else {
-                $hex = ltrim($request->input('color') ?: 'ffffff', '#');
+                $hex = ltrim($request->input('color') ?: ($request->input('custom_color') ?: 'ffffff'), '#');
                 if (! preg_match('/^[0-9A-Fa-f]{6}$/', $hex)) {
                     $hex = 'ffffff';
                 }
