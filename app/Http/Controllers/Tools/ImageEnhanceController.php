@@ -81,6 +81,12 @@ class ImageEnhanceController extends Controller
                 ->with('download_name', 'max-ai-enhanced.png')
                 ->with('preview_url', asset('storage/'.$filename));
         } catch (GuzzleException $e) {
+            $detail = $e->getMessage();
+            if (method_exists($e, 'getResponse') && $e->getResponse()) {
+                $detail = (string) $e->getResponse()->getBody();
+            }
+            \Illuminate\Support\Facades\Log::error('enhance-image failed: '.$detail);
+
             return back()->with('error', 'Gagal memproses gambar. Pastikan service AI (Python) sedang berjalan.');
         }
     }
