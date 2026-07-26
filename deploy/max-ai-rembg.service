@@ -1,0 +1,16 @@
+[Unit]
+Description=Max AI - Remove Background microservice (FastAPI + rembg)
+After=network.target
+
+[Service]
+Type=simple
+User=aginza
+WorkingDirectory=/www/wwwroot/max.co.id/max-ai/python-service
+ExecStart=/www/wwwroot/max.co.id/max-ai/python-service/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/max-ai-rembg.log
+StandardError=append:/var/log/max-ai-rembg.log
+
+[Install]
+WantedBy=multi-user.target
