@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Member\MemberFileController;
+use App\Http\Controllers\Member\MemberFolderController;
 use App\Http\Controllers\Tools\EncryptionController;
 use App\Http\Controllers\Tools\ImageToPdfController;
 use App\Http\Controllers\Tools\ImageToTextController;
@@ -32,7 +33,14 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middle
 // ===== Member Area =====
 Route::prefix('member')->name('member.')->middleware('auth')->group(function () {
     Route::get('/', [MemberFileController::class, 'index'])->name('dashboard');
+    Route::get('folder/{folder}', [MemberFileController::class, 'index'])->name('folder');
+
+    Route::post('folder', [MemberFolderController::class, 'store'])->name('folder.store');
+    Route::patch('folder/{folder}/rename', [MemberFolderController::class, 'rename'])->name('folder.rename');
+    Route::delete('folder/{folder}', [MemberFolderController::class, 'destroy'])->name('folder.destroy');
+
     Route::post('upload', [MemberFileController::class, 'upload'])->name('upload');
+    Route::patch('{memberFile}/rename', [MemberFileController::class, 'rename'])->name('rename');
     Route::get('download/{memberFile}', [MemberFileController::class, 'download'])->name('download');
     Route::delete('{memberFile}', [MemberFileController::class, 'destroy'])->name('destroy');
 });

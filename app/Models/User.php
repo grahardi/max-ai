@@ -34,4 +34,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(MemberFile::class);
     }
+
+    public function memberFolders(): HasMany
+    {
+        return $this->hasMany(MemberFolder::class);
+    }
 }

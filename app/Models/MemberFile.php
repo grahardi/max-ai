@@ -12,6 +12,7 @@ class MemberFile extends Model
 
     protected $fillable = [
         'user_id',
+        'folder_id',
         'original_name',
         'stored_name',
         'extension',
@@ -22,6 +23,11 @@ class MemberFile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function folder(): BelongsTo
+    {
+        return $this->belongsTo(MemberFolder::class, 'folder_id');
     }
 
     public function getStoragePathAttribute(): string

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
 use App\Models\ProcessedImage;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class RemoveBackgroundController extends Controller
 {
+    use SavesToMemberHasil;
+
     private const MAX_SIZE_KB = 8 * 1024; // 8 MB
 
     /**
@@ -65,6 +68,13 @@ class RemoveBackgroundController extends Controller
                 'result_path' => $resultPath,
                 'status' => 'done',
             ]);
+
+            $this->saveResultToMemberHasil(
+                Storage::disk('public')->path($resultPath),
+                pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'-no-bg.png',
+                'png',
+                'image/png'
+            );
 
             return redirect()
                 ->route('tools.remove-background')

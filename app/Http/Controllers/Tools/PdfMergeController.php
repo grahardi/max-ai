@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -11,6 +12,8 @@ use Throwable;
 
 class PdfMergeController extends Controller
 {
+    use SavesToMemberHasil;
+
     public function create()
     {
         return view('tools.merge-pdf');
@@ -47,6 +50,13 @@ class PdfMergeController extends Controller
             $filename = 'results/'.Str::uuid().'.pdf';
             Storage::disk('public')->makeDirectory('results');
             $pdf->Output(Storage::disk('public')->path($filename), 'F');
+
+            $this->saveResultToMemberHasil(
+                Storage::disk('public')->path($filename),
+                'gabungan-pdf.pdf',
+                'pdf',
+                'application/pdf'
+            );
 
             return back()
                 ->with('success', 'PDF berhasil digabung menjadi 1 file!')

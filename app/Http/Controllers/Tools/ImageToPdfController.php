@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -11,6 +12,8 @@ use Throwable;
 
 class ImageToPdfController extends Controller
 {
+    use SavesToMemberHasil;
+
     private const PX_TO_MM = 0.264583; // konversi px (96dpi) ke mm
 
     public function create()
@@ -49,6 +52,13 @@ class ImageToPdfController extends Controller
             $filename = 'results/'.Str::uuid().'.pdf';
             Storage::disk('public')->makeDirectory('results');
             $pdf->Output(Storage::disk('public')->path($filename), 'F');
+
+            $this->saveResultToMemberHasil(
+                Storage::disk('public')->path($filename),
+                'gambar-ke-pdf.pdf',
+                'pdf',
+                'application/pdf'
+            );
 
             return back()
                 ->with('success', 'Foto berhasil dijadikan PDF!')

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\MemberFolder;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,6 +34,13 @@ class AuthController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+        ]);
+
+        MemberFolder::create([
+            'user_id' => $user->id,
+            'parent_id' => null,
+            'name' => 'Hasil',
+            'is_system' => true,
         ]);
 
         Auth::login($user);

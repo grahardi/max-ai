@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,6 +13,8 @@ use ZipArchive;
 
 class PdfSplitController extends Controller
 {
+    use SavesToMemberHasil;
+
     public function create()
     {
         return view('tools.split-pdf');
@@ -68,6 +71,13 @@ class PdfSplitController extends Controller
                 $zip->addFile($path, basename($path));
             }
             $zip->close();
+
+            $this->saveResultToMemberHasil(
+                $zipFullPath,
+                'pecahan-pdf.zip',
+                'zip',
+                'application/zip'
+            );
 
             return back()
                 ->with('success', "PDF berhasil dipecah menjadi {$pageCount} halaman!")
