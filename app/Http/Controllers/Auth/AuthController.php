@@ -22,9 +22,12 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
+            'username.alpha_dash' => 'Username hanya boleh huruf, angka, strip, dan underscore (tanpa spasi).',
+            'username.unique' => 'Username ini sudah dipakai.',
             'email.unique' => 'Email ini sudah terdaftar.',
             'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
@@ -32,8 +35,11 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $data['name'],
+            'username' => $data['username'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => 'user',
+            'is_approved' => false,
         ]);
 
         MemberFolder::create([
@@ -43,10 +49,8 @@ class AuthController extends Controller
             'is_system' => true,
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('member.dashboard')->with('success', 'Akun berhasil dibuat, selamat datang!');
+        return redirect()->route('login')
+            ->with('success', 'Registrasi berhasil! Akun kamu menunggu persetujuan admin sebelum bisa login.');
     }
 
     public function showLogin(): View
@@ -56,20 +60,34 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'string', 'email'],
+        $request->validate([
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+        $loginInput = $request->input('login');
+        $field = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $user = User::where($field, $loginInput)->first();
+
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             return back()
-                ->withInput($request->only('email'))
-                ->with('error', 'Email atau password salah.');
+                ->withInput($request->only('login'))
+                ->with('error', 'Email/username atau password salah.');
         }
 
+        if (! $user->is_approved) {
+            return back()
+                ->withInput($request->only('login'))
+                ->with('error', 'Akun kamu masih menunggu persetujuan admin. Silakan coba lagi nanti.');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        return redirect()->intended(route('member.dashboard'))->with('success', 'Berhasil login!');
+        $redirect = $user->isAdmin() ? route('admin.users.index') : route('member.dashboard');
+
+        return redirect()->intended($redirect)->with('success', 'Berhasil login!');
     }
 
     public function logout(Request $request): RedirectResponse

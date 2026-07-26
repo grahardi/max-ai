@@ -100,6 +100,12 @@
 
             <div class="hidden md:flex items-center gap-2">
                 @auth
+                    @if (auth()->user()->isAdmin())
+                        <a href="{{ route('admin.users.index') }}"
+                           class="px-3 py-2 rounded-lg text-sm font-semibold bg-violet-100 hover:bg-violet-200 text-violet-700 flex items-center gap-1">
+                            👑 Admin Panel
+                        </a>
+                    @endif
                     <a href="{{ route('member.dashboard') }}"
                        class="px-3 py-2 rounded-lg text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1">
                         📁 Member Area

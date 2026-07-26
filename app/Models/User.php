@@ -13,8 +13,12 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'role',
+        'is_approved',
+        'approved_at',
     ];
 
     protected $hidden = [
@@ -26,6 +30,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'is_approved' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -38,5 +44,10 @@ class User extends Authenticatable
     public function memberFolders(): HasMany
     {
         return $this->hasMany(MemberFolder::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

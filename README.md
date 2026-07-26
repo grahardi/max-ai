@@ -138,6 +138,27 @@ Fitur register/login + file manager pribadi per user, lengkap dengan folder.
   }
   ```
 
+## Admin Panel & Approval Registrasi
+
+| Bagian | File utama |
+|---|---|
+| Middleware admin | `app/Http/Middleware/EnsureUserIsAdmin.php` (alias `admin`, didaftarkan di `bootstrap/app.php`) |
+| Kelola user | `app/Http/Controllers/Admin/UserController.php` → `/admin/users` |
+| Migration promosi admin | `database/migrations/2026_07_26_030000_add_admin_fields_to_users_table.php` |
+
+**Cara kerja:**
+- Registrasi baru otomatis berstatus **pending** (`is_approved = false`) dan **tidak bisa login** sampai disetujui admin.
+- Login sekarang bisa pakai **email atau username**.
+- User yang sudah ada sebelum update ini (termasuk akun `admin@mail.co.id` kamu) otomatis di-set `is_approved = true` oleh migration di atas (grandfathered), dan email `admin@mail.co.id` khusus dijadikan **role admin**.
+- Admin bisa: approve user pending, ubah role user ↔ admin, hapus user (beserta seluruh file member miliknya, karena relasi di-cascade). Admin tidak bisa menghapus/menurunkan role akun sendiri, dan admin terakhir tidak bisa dihapus.
+- Setelah login, admin diarahkan ke `/admin/users`, user biasa ke `/member`.
+
+Jalankan setelah `git pull`:
+```bash
+php artisan migrate
+```
+Migration ini otomatis mempromosikan `admin@mail.co.id` (kalau sudah terdaftar) jadi admin — tidak perlu langkah manual lain.
+
 ## Roadmap tools berikutnya
 
 Landing page (`resources/views/home/index.blade.php`) sudah dikelompokkan per kategori, tinggal tambah card baru mengikuti pola folder `app/Http/Controllers/Tools/`.

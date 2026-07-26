@@ -15,10 +15,10 @@
         @csrf
 
         <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" required autofocus
+            <label class="block text-sm font-medium text-slate-600 mb-1">Email atau Username</label>
+            <input type="text" name="login" value="{{ old('login') }}" required autofocus
                    class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:ring-indigo-400">
-            @error('email')<p class="text-sm text-rose-600 mt-1">{{ $message }}</p>@enderror
+            @error('login')<p class="text-sm text-rose-600 mt-1">{{ $message }}</p>@enderror
         </div>
 
         <div>

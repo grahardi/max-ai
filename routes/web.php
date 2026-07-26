@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Member\MemberFileController;
 use App\Http\Controllers\Member\MemberFolderController;
@@ -46,6 +47,14 @@ Route::prefix('member')->name('member.')->middleware('auth')->group(function () 
     Route::post('{memberFile}/copy', [MemberFileController::class, 'copy'])->name('copy');
     Route::get('download/{memberFile}', [MemberFileController::class, 'download'])->name('download');
     Route::delete('{memberFile}', [MemberFileController::class, 'destroy'])->name('destroy');
+});
+
+// ===== Admin Panel =====
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
+    Route::patch('users/{user}/role', [AdminUserController::class, 'toggleRole'])->name('users.role');
+    Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 });
 
 Route::prefix('tools')->name('tools.')->group(function () {

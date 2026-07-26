@@ -22,6 +22,14 @@
         </div>
 
         <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Username</label>
+            <input type="text" name="username" value="{{ old('username') }}" required
+                   class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:ring-indigo-400">
+            <p class="text-xs text-slate-400 mt-1">Huruf, angka, strip, underscore saja (tanpa spasi).</p>
+            @error('username')<p class="text-sm text-rose-600 mt-1">{{ $message }}</p>@enderror
+        </div>
+
+        <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Email</label>
             <input type="email" name="email" value="{{ old('email') }}" required
                    class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-indigo-400 focus:ring-indigo-400">
