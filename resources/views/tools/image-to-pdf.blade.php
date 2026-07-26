@@ -15,19 +15,29 @@
           class="rounded-2xl border border-indigo-100 bg-white p-6 space-y-4">
         @csrf
 
-        <label for="photos"
-               class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 py-10 cursor-pointer transition">
-            <span class="text-3xl">📤</span>
-            <span class="text-sm text-slate-500">Klik untuk pilih beberapa foto (JPG, PNG, WEBP - maks 8MB/foto)</span>
-            <input id="photos" name="photos[]" type="file" accept="image/png,image/jpeg,image/webp" multiple class="hidden"
-                   onchange="document.getElementById('file-count').innerText = this.files.length + ' foto dipilih'">
-            <span id="file-count" class="text-xs font-medium text-indigo-600"></span>
-        </label>
+        <x-file-source-picker
+            :multiple="true"
+            input-name="photos[]"
+            member-input-name="member_file_ids[]"
+            accept="image/png,image/jpeg,image/webp"
+            :eligible-files="$eligibleFiles">
+            <label for="photos"
+                   class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 py-10 cursor-pointer transition">
+                <span class="text-3xl">📤</span>
+                <span class="text-sm text-slate-500">Klik untuk pilih beberapa foto (JPG, PNG, WEBP - maks 8MB/foto)</span>
+                <input id="photos" name="photos[]" type="file" accept="image/png,image/jpeg,image/webp" multiple class="hidden"
+                       onchange="document.getElementById('file-count').innerText = this.files.length + ' foto dipilih'">
+                <span id="file-count" class="text-xs font-medium text-indigo-600"></span>
+            </label>
+        </x-file-source-picker>
 
         @error('photos')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
         @error('photos.*')
+            <p class="text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+        @error('member_file_ids')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
 

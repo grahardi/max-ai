@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
+use App\Http\Controllers\Tools\Concerns\UsesMemberFileSource;
 use App\Models\ProcessedImage;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -15,9 +16,10 @@ use Illuminate\View\View;
 
 class RemoveBackgroundController extends Controller
 {
-    use SavesToMemberHasil;
+    use SavesToMemberHasil, UsesMemberFileSource;
 
     private const MAX_SIZE_KB = 8 * 1024; // 8 MB
+    private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
     /**
      * Tampilkan form upload tool Remove Background.
@@ -31,32 +33,46 @@ class RemoveBackgroundController extends Controller
             ->limit(6)
             ->get();
 
-        return view('tools.remove-background', ['recent' => $recent]);
+        return view('tools.remove-background', [
+            'recent' => $recent,
+            'eligibleFiles' => $this->eligibleMemberFiles(self::IMAGE_EXTENSIONS),
+        ]);
     }
 
     /**
-     * Proses upload foto, kirim ke microservice rembg, simpan hasilnya.
+     * Proses foto (upload baru atau dari Member Area), kirim ke microservice rembg, simpan hasilnya.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.self::MAX_SIZE_KB],
+            'photo' => ['required_without:member_file_id', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.self::MAX_SIZE_KB],
+            'member_file_id' => ['required_without:photo', 'nullable', 'integer', 'exists:member_files,id'],
         ], [
-            'photo.required' => 'Silakan pilih foto terlebih dahulu.',
+            'photo.required_without' => 'Silakan pilih foto atau file dari Member Area.',
             'photo.image' => 'File yang diupload harus berupa gambar.',
             'photo.mimes' => 'Format yang didukung: JPG, JPEG, PNG, WEBP.',
             'photo.max' => 'Ukuran foto maksimal 8MB.',
         ]);
 
-        $file = $request->file('photo');
-
-        $originalPath = $file->store('uploads', 'public');
+        if ($request->filled('member_file_id')) {
+            $memberFile = $this->resolveMemberFile((int) $request->member_file_id, self::IMAGE_EXTENSIONS);
+            $sourceAbsolutePath = $this->memberFileAbsolutePath($memberFile);
+            $originalName = $memberFile->original_name;
+            $originalPath = 'uploads/'.Str::uuid().'.'.$memberFile->extension;
+            Storage::disk('public')->put($originalPath, file_get_contents($sourceAbsolutePath));
+            $originalSize = $memberFile->size;
+        } else {
+            $file = $request->file('photo');
+            $originalPath = $file->store('uploads', 'public');
+            $originalName = $file->getClientOriginalName();
+            $originalSize = $file->getSize();
+        }
 
         $record = ProcessedImage::create([
             'tool' => 'remove-background',
             'original_path' => $originalPath,
-            'original_name' => $file->getClientOriginalName(),
-            'original_size' => $file->getSize(),
+            'original_name' => $originalName,
+            'original_size' => $originalSize,
             'status' => 'processing',
             'ip_address' => $request->ip(),
         ]);
@@ -71,7 +87,7 @@ class RemoveBackgroundController extends Controller
 
             $this->saveResultToMemberHasil(
                 Storage::disk('public')->path($resultPath),
-                pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'-no-bg.png',
+                pathinfo($originalName, PATHINFO_FILENAME).'-no-bg.png',
                 'png',
                 'image/png'
             );

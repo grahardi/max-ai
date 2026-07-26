@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
+use App\Http\Controllers\Tools\Concerns\UsesMemberFileSource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,32 +13,51 @@ use Throwable;
 
 class PdfMergeController extends Controller
 {
-    use SavesToMemberHasil;
+    use SavesToMemberHasil, UsesMemberFileSource;
+
+    private const PDF_EXTENSION = ['pdf'];
 
     public function create()
     {
-        return view('tools.merge-pdf');
+        return view('tools.merge-pdf', [
+            'eligibleFiles' => $this->eligibleMemberFiles(self::PDF_EXTENSION),
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'pdfs' => ['required', 'array', 'min:2', 'max:20'],
+            'pdfs' => ['nullable', 'array', 'max:20'],
             'pdfs.*' => ['file', 'mimes:pdf', 'max:20480'],
+            'member_file_ids' => ['nullable', 'array', 'max:20'],
+            'member_file_ids.*' => ['integer', 'exists:member_files,id'],
         ], [
-            'pdfs.required' => 'Pilih minimal 2 file PDF untuk digabung.',
-            'pdfs.min' => 'Pilih minimal 2 file PDF untuk digabung.',
             'pdfs.*.mimes' => 'Semua file harus berformat PDF.',
             'pdfs.*.max' => 'Ukuran tiap PDF maksimal 20MB.',
         ]);
 
         try {
+            $pdfPaths = [];
+
+            foreach ($request->file('pdfs', []) as $file) {
+                $pdfPaths[] = $file->getRealPath();
+            }
+
+            foreach ($request->input('member_file_ids', []) as $id) {
+                $memberFile = $this->resolveMemberFile((int) $id, self::PDF_EXTENSION);
+                $pdfPaths[] = $this->memberFileAbsolutePath($memberFile);
+            }
+
+            if (count($pdfPaths) < 2) {
+                return back()->with('error', 'Pilih minimal 2 file PDF untuk digabung (upload atau dari Member Area).');
+            }
+
             $pdf = new Fpdi;
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
 
-            foreach ($request->file('pdfs') as $file) {
-                $pageCount = $pdf->setSourceFile($file->getRealPath());
+            foreach ($pdfPaths as $path) {
+                $pageCount = $pdf->setSourceFile($path);
 
                 for ($i = 1; $i <= $pageCount; $i++) {
                     $templateId = $pdf->importPage($i);

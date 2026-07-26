@@ -15,16 +15,26 @@
           class="rounded-2xl border border-fuchsia-100 bg-white p-6 space-y-4">
         @csrf
 
-        <label for="photo"
-               class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-fuchsia-200 hover:border-fuchsia-400 bg-fuchsia-50/40 py-10 cursor-pointer transition">
-            <span class="text-3xl">📤</span>
-            <span class="text-sm text-slate-500">Klik untuk pilih foto (JPG, PNG, WEBP - maks 8MB)</span>
-            <input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp" class="hidden"
-                   onchange="document.getElementById('file-name').innerText = this.files[0]?.name ?? ''">
-            <span id="file-name" class="text-xs font-medium text-fuchsia-600"></span>
-        </label>
+        <x-file-source-picker
+            :multiple="false"
+            input-name="photo"
+            member-input-name="member_file_id"
+            accept="image/png,image/jpeg,image/webp"
+            :eligible-files="$eligibleFiles">
+            <label for="photo"
+                   class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-fuchsia-200 hover:border-fuchsia-400 bg-fuchsia-50/40 py-10 cursor-pointer transition">
+                <span class="text-3xl">📤</span>
+                <span class="text-sm text-slate-500">Klik untuk pilih foto (JPG, PNG, WEBP - maks 8MB)</span>
+                <input id="photo" name="photo" type="file" accept="image/png,image/jpeg,image/webp" class="hidden"
+                       onchange="document.getElementById('file-name').innerText = this.files[0]?.name ?? ''">
+                <span id="file-name" class="text-xs font-medium text-fuchsia-600"></span>
+            </label>
+        </x-file-source-picker>
 
         @error('photo')
+            <p class="text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+        @error('member_file_id')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
 

@@ -15,19 +15,29 @@
           class="rounded-2xl border border-rose-100 bg-white p-6 space-y-4">
         @csrf
 
-        <label for="pdfs"
-               class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-rose-200 hover:border-rose-400 bg-rose-50/40 py-10 cursor-pointer transition">
-            <span class="text-3xl">📤</span>
-            <span class="text-sm text-slate-500">Klik untuk pilih minimal 2 file PDF (maks 20MB/file)</span>
-            <input id="pdfs" name="pdfs[]" type="file" accept="application/pdf" multiple class="hidden"
-                   onchange="document.getElementById('file-count').innerText = this.files.length + ' PDF dipilih'">
-            <span id="file-count" class="text-xs font-medium text-rose-600"></span>
-        </label>
+        <x-file-source-picker
+            :multiple="true"
+            input-name="pdfs[]"
+            member-input-name="member_file_ids[]"
+            accept="application/pdf"
+            :eligible-files="$eligibleFiles">
+            <label for="pdfs"
+                   class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-rose-200 hover:border-rose-400 bg-rose-50/40 py-10 cursor-pointer transition">
+                <span class="text-3xl">📤</span>
+                <span class="text-sm text-slate-500">Klik untuk pilih minimal 2 file PDF (maks 20MB/file)</span>
+                <input id="pdfs" name="pdfs[]" type="file" accept="application/pdf" multiple class="hidden"
+                       onchange="document.getElementById('file-count').innerText = this.files.length + ' PDF dipilih'">
+                <span id="file-count" class="text-xs font-medium text-rose-600"></span>
+            </label>
+        </x-file-source-picker>
 
         @error('pdfs')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
         @error('pdfs.*')
+            <p class="text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+        @error('member_file_ids')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
 

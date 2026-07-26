@@ -15,16 +15,26 @@
           class="rounded-2xl border border-orange-100 bg-white p-6 space-y-4">
         @csrf
 
-        <label for="pdf"
-               class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 bg-orange-50/40 py-10 cursor-pointer transition">
-            <span class="text-3xl">📤</span>
-            <span class="text-sm text-slate-500">Klik untuk pilih 1 file PDF (maks 20MB)</span>
-            <input id="pdf" name="pdf" type="file" accept="application/pdf" class="hidden"
-                   onchange="document.getElementById('file-name').innerText = this.files[0]?.name ?? ''">
-            <span id="file-name" class="text-xs font-medium text-orange-600"></span>
-        </label>
+        <x-file-source-picker
+            :multiple="false"
+            input-name="pdf"
+            member-input-name="member_file_id"
+            accept="application/pdf"
+            :eligible-files="$eligibleFiles">
+            <label for="pdf"
+                   class="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 bg-orange-50/40 py-10 cursor-pointer transition">
+                <span class="text-3xl">📤</span>
+                <span class="text-sm text-slate-500">Klik untuk pilih 1 file PDF (maks 20MB)</span>
+                <input id="pdf" name="pdf" type="file" accept="application/pdf" class="hidden"
+                       onchange="document.getElementById('file-name').innerText = this.files[0]?.name ?? ''">
+                <span id="file-name" class="text-xs font-medium text-orange-600"></span>
+            </label>
+        </x-file-source-picker>
 
         @error('pdf')
+            <p class="text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+        @error('member_file_id')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
 

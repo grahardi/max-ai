@@ -159,6 +159,19 @@ php artisan migrate
 ```
 Migration ini otomatis mempromosikan `admin@mail.co.id` (kalau sudah terdaftar) jadi admin — tidak perlu langkah manual lain.
 
+## Pilih File dari Member Area (di semua tools)
+
+Untuk user yang sedang login, tiap tool (Remove Background, Gambar ke PDF, Gambar ke Teks/OCR, Gabung PDF, Pecah PDF) sekarang punya 2 tab di form-nya:
+- **📤 Upload Baru** — seperti biasa
+- **📁 Pilih dari File Manager** — pilih file yang sudah ada di Member Area (difilter otomatis sesuai tipe yang didukung tool tersebut)
+
+| Bagian | File utama |
+|---|---|
+| Komponen UI (tab picker) | `resources/views/components/file-source-picker.blade.php` |
+| Trait logika pengambilan & validasi file member | `app/Http/Controllers/Tools/Concerns/UsesMemberFileSource.php` |
+
+Guest (belum login) tidak melihat tab ini sama sekali — cuma opsi upload biasa.
+
 ## Roadmap tools berikutnya
 
 Landing page (`resources/views/home/index.blade.php`) sudah dikelompokkan per kategori, tinggal tambah card baru mengikuti pola folder `app/Http/Controllers/Tools/`.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
+use App\Http\Controllers\Tools\Concerns\UsesMemberFileSource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -13,24 +14,35 @@ use ZipArchive;
 
 class PdfSplitController extends Controller
 {
-    use SavesToMemberHasil;
+    use SavesToMemberHasil, UsesMemberFileSource;
+
+    private const PDF_EXTENSION = ['pdf'];
 
     public function create()
     {
-        return view('tools.split-pdf');
+        return view('tools.split-pdf', [
+            'eligibleFiles' => $this->eligibleMemberFiles(self::PDF_EXTENSION),
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'pdf' => ['required', 'file', 'mimes:pdf', 'max:20480'],
+            'pdf' => ['required_without:member_file_id', 'nullable', 'file', 'mimes:pdf', 'max:20480'],
+            'member_file_id' => ['required_without:pdf', 'nullable', 'integer', 'exists:member_files,id'],
         ], [
-            'pdf.required' => 'Pilih file PDF terlebih dahulu.',
+            'pdf.required_without' => 'Pilih file PDF terlebih dahulu (upload atau dari Member Area).',
             'pdf.mimes' => 'File harus berformat PDF.',
             'pdf.max' => 'Ukuran PDF maksimal 20MB.',
         ]);
 
-        $sourcePath = $request->file('pdf')->getRealPath();
+        if ($request->filled('member_file_id')) {
+            $memberFile = $this->resolveMemberFile((int) $request->member_file_id, self::PDF_EXTENSION);
+            $sourcePath = $this->memberFileAbsolutePath($memberFile);
+        } else {
+            $sourcePath = $request->file('pdf')->getRealPath();
+        }
+
         $tempDir = storage_path('app/tmp/'.Str::uuid());
 
         try {
