@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Tools;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tools\Concerns\SavesToMemberHasil;
 use App\Http\Controllers\Tools\Concerns\UsesMemberFileSource;
+use App\Models\MemberFolder;
 use App\Models\ProcessedImage;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -23,15 +25,26 @@ class RemoveBackgroundController extends Controller
 
     /**
      * Tampilkan form upload tool Remove Background.
+     * Riwayat hanya ditampilkan untuk member yang login (milik sendiri), guest tidak melihat riwayat sama sekali.
      */
     public function create(): View
     {
-        $recent = ProcessedImage::query()
-            ->where('tool', 'remove-background')
-            ->where('status', 'done')
-            ->latest()
-            ->limit(6)
-            ->get();
+        $recent = collect();
+
+        if (Auth::check()) {
+            $hasilFolder = MemberFolder::where('user_id', Auth::id())
+                ->where('is_system', true)
+                ->where('name', 'Hasil')
+                ->first();
+
+            if ($hasilFolder) {
+                $recent = $hasilFolder->files()
+                    ->where('extension', 'png')
+                    ->latest()
+                    ->limit(6)
+                    ->get();
+            }
+        }
 
         return view('tools.remove-background', [
             'recent' => $recent,

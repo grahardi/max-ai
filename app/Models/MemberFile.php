@@ -35,6 +35,11 @@ class MemberFile extends Model
         return 'members/'.$this->user_id.'/'.$this->stored_name;
     }
 
+    public function getUrlAttribute(): string
+    {
+        return asset('storage/'.$this->storage_path);
+    }
+
     public function getHumanSizeAttribute(): string
     {
         $bytes = $this->size;

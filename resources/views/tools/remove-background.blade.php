@@ -64,15 +64,24 @@
         </div>
     @endif
 
-    @if ($recent->isNotEmpty())
-        <div class="mt-14">
-            <p class="text-sm font-medium text-slate-500 mb-3">Riwayat terbaru</p>
-            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                @foreach ($recent as $item)
-                    <img src="{{ $item->result_url }}" class="aspect-square rounded-lg border border-slate-200 object-cover bg-slate-100" alt="Riwayat">
-                @endforeach
+    @if (auth()->check())
+        @if ($recent->isNotEmpty())
+            <div class="mt-14">
+                <p class="text-sm font-medium text-slate-500 mb-3">Riwayat kamu (folder Hasil)</p>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    @foreach ($recent as $item)
+                        <a href="{{ $item->url }}" download="{{ $item->original_name }}">
+                            <img src="{{ $item->url }}" class="aspect-square rounded-lg border border-slate-200 object-cover bg-slate-100" alt="Riwayat">
+                        </a>
+                    @endforeach
+                </div>
             </div>
-        </div>
+        @endif
+    @else
+        <p class="mt-10 text-center text-sm text-slate-400">
+            <a href="{{ route('register') }}" class="text-brand-600 font-medium hover:underline">Daftar sebagai member</a>
+            untuk menyimpan riwayat hasil proses kamu secara privat.
+        </p>
     @endif
 
 </section>

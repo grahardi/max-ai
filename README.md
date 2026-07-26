@@ -176,6 +176,10 @@ Guest (belum login) tidak melihat tab ini sama sekali — cuma opsi upload biasa
 
 Landing page (`resources/views/home/index.blade.php`) sudah dikelompokkan per kategori, tinggal tambah card baru mengikuti pola folder `app/Http/Controllers/Tools/`.
 
+## Catatan: Riwayat tool khusus member
+
+Sebelumnya tool Remove Background menampilkan galeri "riwayat terbaru" ke **semua pengunjung** (termasuk guest), yang menampilkan hasil proses siapapun — ini masalah privasi. Sekarang riwayat hanya tampil untuk **member yang login**, diambil dari folder Hasil milik mereka sendiri saja. Guest tidak melihat riwayat sama sekali, hanya ajakan untuk daftar.
+
 ## Catatan keamanan
 
 - Jangan commit file `.env` ke repo (sudah ada di `.gitignore`).
