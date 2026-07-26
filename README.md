@@ -1,0 +1,107 @@
+# Max AI
+
+Situs kumpulan **Tools AI**, dibangun dengan **Laravel 13 + PHP 8.5 + PostgreSQL**.
+
+Fitur pertama: **Remove Background** — hapus background foto otomatis pakai AI (model U2Net via [rembg](https://github.com/danielgatis/rembg)), dijalankan sebagai microservice Python terpisah dan dipanggil dari Laravel.
+
+## Arsitektur singkat
+
+```
+Browser  --->  Laravel (PHP 8.5, PostgreSQL)  --->  Python microservice (FastAPI + rembg)
+                     |                                        |
+              simpan history di DB                    proses hapus background (U2Net)
+                     |                                        |
+              simpan file di storage/app/public   <-----------+
+```
+
+Laravel **tidak** melakukan proses AI langsung di PHP. Laravel menerima upload, mengirim file ke microservice Python via HTTP, lalu menyimpan hasil PNG transparan yang dikembalikan.
+
+## Persiapan
+
+### 1. Requirement
+- PHP 8.5 + ekstensi: `pdo_pgsql`, `mbstring`, `xml`, `curl`, `gd`
+- Composer 2.x
+- PostgreSQL 15+
+- Python 3.10+ (untuk microservice rembg)
+- Node.js (opsional, jika ingin build asset; saat ini Tailwind dipakai via CDN jadi tidak wajib)
+
+### 2. Install dependency Laravel
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+
+### 3. Konfigurasi PostgreSQL
+
+Buat database dulu:
+
+```bash
+createdb max_ai
+```
+
+Isi `.env`:
+
+```
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=max_ai
+DB_USERNAME=postgres
+DB_PASSWORD=isi_password_kamu
+```
+
+Lalu jalankan migration:
+
+```bash
+php artisan migrate
+php artisan storage:link
+```
+
+### 4. Jalankan microservice Remove Background (Python)
+
+```bash
+cd python-service
+python3 -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --host 127.0.0.1 --port 8001
+```
+
+Model U2Net akan otomatis di-download saat request pertama (butuh internet sekali di awal, lalu di-cache).
+
+Pastikan `.env` Laravel menunjuk ke service ini:
+
+```
+REMBG_SERVICE_URL=http://127.0.0.1:8001
+```
+
+### 5. Jalankan Laravel
+
+```bash
+php artisan serve
+```
+
+Buka `http://localhost:8000` lalu klik tool **Remove Background**.
+
+## Struktur fitur Remove Background
+
+| File | Fungsi |
+|---|---|
+| `routes/web.php` | Route `GET/POST /tools/remove-background` |
+| `app/Http/Controllers/Tools/RemoveBackgroundController.php` | Validasi upload, panggil microservice, simpan hasil |
+| `app/Models/ProcessedImage.php` | Riwayat gambar yang diproses |
+| `database/migrations/*_create_processed_images_table.php` | Tabel riwayat |
+| `resources/views/tools/remove-background.blade.php` | Halaman upload & hasil |
+| `python-service/main.py` | Microservice FastAPI + rembg (U2Net) |
+
+## Roadmap tools berikutnya
+
+Landing page (`resources/views/home/index.blade.php`) sudah disiapkan sebagai katalog, tinggal tambah card baru untuk tool berikutnya (Text to Image, Speech to Text, PDF Summarizer, dll) mengikuti pola folder `app/Http/Controllers/Tools/`.
+
+## Catatan keamanan
+
+- Jangan commit file `.env` ke repo (sudah ada di `.gitignore`).
+- Batasi ukuran upload (`max:8192` KB di validator) untuk menghindari abuse.
+- Untuk production, jalankan microservice Python di belakang reverse proxy / auth token internal, jangan expose port 8001 langsung ke publik.
