@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tools\EncryptionController;
 use App\Http\Controllers\Tools\ImageToPdfController;
 use App\Http\Controllers\Tools\ImageToTextController;
 use App\Http\Controllers\Tools\PdfMergeController;
@@ -46,4 +47,25 @@ Route::prefix('tools')->name('tools.')->group(function () {
         ->name('split-pdf');
     Route::post('split-pdf', [PdfSplitController::class, 'store'])
         ->name('split-pdf.process');
+
+    // ===== Enkripsi =====
+    Route::get('encrypt/bcrypt', [EncryptionController::class, 'bcryptForm'])
+        ->name('encrypt.bcrypt');
+    Route::post('encrypt/bcrypt', [EncryptionController::class, 'bcryptProcess'])
+        ->name('encrypt.bcrypt.process');
+
+    Route::get('encrypt/base64', [EncryptionController::class, 'base64Form'])
+        ->name('encrypt.base64');
+    Route::post('encrypt/base64', [EncryptionController::class, 'base64Process'])
+        ->name('encrypt.base64.process');
+
+    Route::get('encrypt/sha256', [EncryptionController::class, 'sha256Form'])
+        ->name('encrypt.sha256');
+    Route::post('encrypt/sha256', [EncryptionController::class, 'sha256Process'])
+        ->name('encrypt.sha256.process');
+
+    Route::get('encrypt/md5', [EncryptionController::class, 'md5Form'])
+        ->name('encrypt.md5');
+    Route::post('encrypt/md5', [EncryptionController::class, 'md5Process'])
+        ->name('encrypt.md5.process');
 });

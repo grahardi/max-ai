@@ -66,6 +66,20 @@
 
                 <div class="relative dropdown">
                     <button class="px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center gap-1">
+                        🔐 Enkripsi <span class="text-xs">▾</span>
+                    </button>
+                    <div class="dropdown-menu hidden absolute left-0 top-full pt-2 w-56">
+                        <div class="rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+                            <a href="{{ route('tools.encrypt.bcrypt') }}" class="block px-4 py-2.5 text-sm hover:bg-violet-50 hover:text-violet-600">Bcrypt</a>
+                            <a href="{{ route('tools.encrypt.base64') }}" class="block px-4 py-2.5 text-sm hover:bg-violet-50 hover:text-violet-600">Base64</a>
+                            <a href="{{ route('tools.encrypt.sha256') }}" class="block px-4 py-2.5 text-sm hover:bg-violet-50 hover:text-violet-600">SHA256</a>
+                            <a href="{{ route('tools.encrypt.md5') }}" class="block px-4 py-2.5 text-sm hover:bg-violet-50 hover:text-violet-600">MD5</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative dropdown">
+                    <button class="px-3 py-2 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center gap-1">
                         ✨ Tool Lainnya <span class="text-xs">▾</span>
                     </button>
                     <div class="dropdown-menu hidden absolute right-0 top-full pt-2 w-56">
