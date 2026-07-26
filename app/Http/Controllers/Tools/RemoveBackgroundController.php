@@ -188,9 +188,6 @@ class RemoveBackgroundController extends Controller
             $outputPath = Storage::disk('public')->path($filename);
             imagepng($canvas, $outputPath);
 
-            imagedestroy($foreground);
-            imagedestroy($canvas);
-
             $this->saveResultToMemberHasil(
                 $outputPath,
                 pathinfo($record->original_name, PATHINFO_FILENAME).'-background-baru.png',
@@ -241,9 +238,6 @@ class RemoveBackgroundController extends Controller
         $offsetY = (int) (($scaledHeight - $targetHeight) / 2);
 
         imagecopy($canvas, $resized, 0, 0, $offsetX, $offsetY, $targetWidth, $targetHeight);
-
-        imagedestroy($source);
-        imagedestroy($resized);
     }
 
     /**
