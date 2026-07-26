@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Member\MemberFileController;
 use App\Http\Controllers\Tools\EncryptionController;
 use App\Http\Controllers\Tools\ImageToPdfController;
 use App\Http\Controllers\Tools\ImageToTextController;
@@ -12,10 +14,28 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | Web Routes - Max AI
 |--------------------------------------------------------------------------
-| Menu utama: Home - Proses Gambar - Proses PDF - Tool Lainnya
+| Menu utama: Home - Proses Gambar - Proses PDF - Enkripsi - Tool Lainnya
+| Plus: Member Area (auth + file manager)
 */
 
 Route::view('/', 'home.index')->name('home');
+
+// ===== Auth =====
+Route::middleware('guest')->group(function () {
+    Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('register', [AuthController::class, 'register']);
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'login']);
+});
+Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// ===== Member Area =====
+Route::prefix('member')->name('member.')->middleware('auth')->group(function () {
+    Route::get('/', [MemberFileController::class, 'index'])->name('dashboard');
+    Route::post('upload', [MemberFileController::class, 'upload'])->name('upload');
+    Route::get('download/{memberFile}', [MemberFileController::class, 'download'])->name('download');
+    Route::delete('{memberFile}', [MemberFileController::class, 'destroy'])->name('destroy');
+});
 
 Route::prefix('tools')->name('tools.')->group(function () {
 

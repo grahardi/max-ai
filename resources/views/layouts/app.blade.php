@@ -98,6 +98,21 @@
                 </div>
             </nav>
 
+            <div class="hidden md:flex items-center gap-2">
+                @auth
+                    <a href="{{ route('member.dashboard') }}"
+                       class="px-3 py-2 rounded-lg text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1">
+                        📁 Member Area
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100">Masuk</a>
+                    <a href="{{ route('register') }}"
+                       class="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:opacity-90">
+                        Daftar
+                    </a>
+                @endauth
+            </div>
+
             <a href="{{ route('home') }}#tools"
                class="md:hidden text-sm font-semibold text-brand-600">Menu</a>
         </div>

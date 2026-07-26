@@ -105,6 +105,31 @@ Buka `http://localhost:8000` lalu klik tool **Remove Background**.
 
 **Tool Lainnya:** placeholder untuk pengembangan berikutnya (Text to Image, Speech to Text, PDF Summarizer).
 
+## Member Area (mirip NextCloud sederhana)
+
+Fitur register/login + file manager pribadi per user.
+
+| Bagian | File utama |
+|---|---|
+| Register/Login/Logout | `app/Http/Controllers/Auth/AuthController.php` |
+| Upload/List/Download/Hapus file | `app/Http/Controllers/Member/MemberFileController.php` |
+| Model riwayat file | `app/Models/MemberFile.php` |
+| Whitelist ekstensi & kuota | `config/uploads.php` |
+
+**Keamanan upload file member:**
+- Hanya ekstensi di whitelist (`config/uploads.php`) yang diterima — sengaja tidak menyertakan `php`, `phtml`, `js`, `html`, `svg`, `exe`, `sh`, dll agar file yang diupload tidak bisa dieksekusi sebagai script.
+- Nama file disimpan dengan UUID acak (bukan nama asli), jadi tidak bisa ditebak/di-path-traversal.
+- Ada kuota per user (`quota_mb_per_user`, default 1GB) supaya storage server tidak penuh.
+- File hanya bisa diakses oleh pemiliknya (dicek `user_id` di setiap request download/hapus).
+- `storage/app/public/.htaccess` mematikan eksekusi PHP/script apapun di folder ini (proteksi tambahan untuk server Apache). **Kalau pakai Nginx**, tambahkan blok berikut di server config kamu:
+  ```nginx
+  location ^~ /storage/ {
+      location ~ \.(php|phtml|pl|py|cgi|sh)$ {
+          deny all;
+      }
+  }
+  ```
+
 ## Roadmap tools berikutnya
 
 Landing page (`resources/views/home/index.blade.php`) sudah dikelompokkan per kategori, tinggal tambah card baru mengikuti pola folder `app/Http/Controllers/Tools/`.
