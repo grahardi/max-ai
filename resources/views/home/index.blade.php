@@ -62,7 +62,7 @@
             <span class="h-8 w-8 rounded-lg bg-rose-100 flex items-center justify-center">📄</span>
             <h2 class="text-lg font-bold text-slate-900">Proses PDF</h2>
         </div>
-        <div class="grid sm:grid-cols-2 gap-5">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
             <a href="{{ route('tools.merge-pdf') }}"
                class="group rounded-2xl border border-rose-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
@@ -79,50 +79,18 @@
                 <p class="mt-1 text-sm text-slate-500">Pecah PDF jadi file per-halaman, langsung download dalam ZIP.</p>
                 <span class="mt-4 inline-flex text-sm font-medium text-rose-600">Coba sekarang &rarr;</span>
             </a>
-        </div>
-    </div>
 
-    {{-- ===== Enkripsi ===== --}}
-    <div>
-        <div class="flex items-center gap-2 mb-4">
-            <span class="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center">🔐</span>
-            <h2 class="text-lg font-bold text-slate-900">Enkripsi</h2>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
-            <a href="{{ route('tools.encrypt.bcrypt') }}"
-               class="group rounded-2xl border border-violet-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
-                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-2xl mb-4 shadow-sm">🔑</div>
-                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-violet-600">Bcrypt</h3>
-                <p class="mt-1 text-sm text-slate-500">Hash & verifikasi teks pakai algoritma Bcrypt.</p>
-                <span class="mt-4 inline-flex text-sm font-medium text-violet-600">Coba sekarang &rarr;</span>
-            </a>
-
-            <a href="{{ route('tools.encrypt.base64') }}"
-               class="group rounded-2xl border border-violet-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
-                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-2xl mb-4 shadow-sm">🔡</div>
-                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-violet-600">Base64</h3>
-                <p class="mt-1 text-sm text-slate-500">Encode & decode teks ke/dari format Base64.</p>
-                <span class="mt-4 inline-flex text-sm font-medium text-violet-600">Coba sekarang &rarr;</span>
-            </a>
-
-            <a href="{{ route('tools.encrypt.sha256') }}"
-               class="group rounded-2xl border border-violet-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
-                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-fuchsia-500 to-violet-500 flex items-center justify-center text-2xl mb-4 shadow-sm">#️⃣</div>
-                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-violet-600">SHA256</h3>
-                <p class="mt-1 text-sm text-slate-500">Buat hash SHA-256 dari teks apapun.</p>
-                <span class="mt-4 inline-flex text-sm font-medium text-violet-600">Coba sekarang &rarr;</span>
-            </a>
-
-            <a href="{{ route('tools.encrypt.md5') }}"
-               class="group rounded-2xl border border-violet-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
-                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-2xl mb-4 shadow-sm">🧮</div>
-                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-violet-600">MD5</h3>
-                <p class="mt-1 text-sm text-slate-500">Buat hash MD5 dari teks apapun.</p>
-                <span class="mt-4 inline-flex text-sm font-medium text-violet-600">Coba sekarang &rarr;</span>
+            <a href="{{ route('tools.compress-pdf') }}"
+               class="group rounded-2xl border border-rose-100 bg-white p-6 hover:shadow-xl hover:-translate-y-0.5 transition">
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center text-2xl mb-4 shadow-sm">🗜️</div>
+                <h3 class="font-semibold text-lg text-slate-900 group-hover:text-rose-600">Perkecil Ukuran PDF</h3>
+                <p class="mt-1 text-sm text-slate-500">Kompres PDF supaya ukurannya lebih kecil, pilih tingkat kompresinya.</p>
+                <span class="mt-4 inline-flex text-sm font-medium text-rose-600">Coba sekarang &rarr;</span>
             </a>
         </div>
     </div>
+
+    {{-- Grup Enkripsi sengaja disembunyikan dari Home (tetap bisa diakses lewat menu navigasi) --}}
 
     {{-- ===== Tool Lainnya ===== --}}
     <div>

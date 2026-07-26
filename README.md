@@ -24,6 +24,7 @@ Laravel **tidak** melakukan proses AI langsung di PHP. Laravel menerima upload, 
 - PostgreSQL 15+
 - Python 3.10+ (untuk microservice rembg, khusus fitur Remove Background)
 - **Tesseract OCR** (untuk fitur Gambar ke Teks): `sudo apt install tesseract-ocr tesseract-ocr-ind`
+- **Ghostscript** (untuk fitur Perkecil Ukuran PDF): `sudo apt install ghostscript`
 - Node.js (opsional, jika ingin build asset; saat ini Tailwind dipakai via CDN jadi tidak wajib)
 
 ### 2. Install dependency Laravel
@@ -102,6 +103,7 @@ Buka `http://localhost:8000` lalu klik tool **Remove Background**.
 |---|---|
 | Gabung PDF (Merge) | `app/Http/Controllers/Tools/PdfMergeController.php` (pakai FPDI + TCPDF) |
 | Pecah PDF (Split) | `app/Http/Controllers/Tools/PdfSplitController.php` (pakai FPDI + TCPDF, hasil di-zip) |
+| Perkecil Ukuran PDF | `app/Http/Controllers/Tools/PdfCompressController.php` (pakai **Ghostscript** CLI) — butuh `sudo apt install ghostscript` di server |
 
 **Tool Lainnya:** placeholder untuk pengembangan berikutnya (Text to Image, Speech to Text, PDF Summarizer).
 

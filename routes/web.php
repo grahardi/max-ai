@@ -7,6 +7,7 @@ use App\Http\Controllers\Member\MemberFolderController;
 use App\Http\Controllers\Tools\EncryptionController;
 use App\Http\Controllers\Tools\ImageToPdfController;
 use App\Http\Controllers\Tools\ImageToTextController;
+use App\Http\Controllers\Tools\PdfCompressController;
 use App\Http\Controllers\Tools\PdfMergeController;
 use App\Http\Controllers\Tools\PdfSplitController;
 use App\Http\Controllers\Tools\RemoveBackgroundController;
@@ -87,6 +88,11 @@ Route::prefix('tools')->name('tools.')->group(function () {
         ->name('split-pdf');
     Route::post('split-pdf', [PdfSplitController::class, 'store'])
         ->name('split-pdf.process');
+
+    Route::get('compress-pdf', [PdfCompressController::class, 'create'])
+        ->name('compress-pdf');
+    Route::post('compress-pdf', [PdfCompressController::class, 'store'])
+        ->name('compress-pdf.process');
 
     // ===== Enkripsi =====
     Route::get('encrypt/bcrypt', [EncryptionController::class, 'bcryptForm'])

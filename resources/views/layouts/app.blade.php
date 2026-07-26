@@ -21,7 +21,9 @@
         }
     </script>
     <style>
-        .dropdown:hover .dropdown-menu { display: block; }
+        @media (min-width: 768px) {
+            .dropdown:hover .dropdown-menu { display: block; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -33,6 +35,7 @@
                 <span class="bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 bg-clip-text text-transparent">Max AI</span>
             </a>
 
+            {{-- Desktop nav (hover dropdown) --}}
             <nav class="hidden md:flex items-center gap-1 text-sm font-semibold">
                 <a href="{{ route('home') }}"
                    class="px-3 py-2 rounded-lg hover:bg-slate-100 {{ request()->routeIs('home') ? 'text-brand-600' : 'text-slate-600' }}">
@@ -60,6 +63,7 @@
                         <div class="rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
                             <a href="{{ route('tools.merge-pdf') }}" class="block px-4 py-2.5 text-sm hover:bg-rose-50 hover:text-rose-600">Gabung PDF (Merge)</a>
                             <a href="{{ route('tools.split-pdf') }}" class="block px-4 py-2.5 text-sm hover:bg-rose-50 hover:text-rose-600">Pecah PDF (Split)</a>
+                            <a href="{{ route('tools.compress-pdf') }}" class="block px-4 py-2.5 text-sm hover:bg-rose-50 hover:text-rose-600">Perkecil Ukuran PDF</a>
                         </div>
                     </div>
                 </div>
@@ -119,8 +123,52 @@
                 @endauth
             </div>
 
-            <a href="{{ route('home') }}#tools"
-               class="md:hidden text-sm font-semibold text-brand-600">Menu</a>
+            {{-- Mobile hamburger button --}}
+            <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                    class="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg bg-slate-100 text-slate-700">
+                <span class="text-xl leading-none">☰</span>
+            </button>
+        </div>
+
+        {{-- Mobile menu panel --}}
+        <div id="mobile-menu" class="hidden md:hidden border-t bg-white">
+            <div class="px-4 py-3 space-y-4 text-sm">
+                <a href="{{ route('home') }}" class="block font-semibold {{ request()->routeIs('home') ? 'text-brand-600' : 'text-slate-700' }}">Home</a>
+
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase mb-1">🖼️ Proses Gambar</p>
+                    <a href="{{ route('tools.remove-background') }}" class="block py-1.5 text-slate-600">Remove Background</a>
+                    <a href="{{ route('tools.image-to-pdf') }}" class="block py-1.5 text-slate-600">Gambar ke PDF</a>
+                    <a href="{{ route('tools.image-to-text') }}" class="block py-1.5 text-slate-600">Gambar ke Teks (OCR)</a>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase mb-1">📄 Proses PDF</p>
+                    <a href="{{ route('tools.merge-pdf') }}" class="block py-1.5 text-slate-600">Gabung PDF (Merge)</a>
+                    <a href="{{ route('tools.split-pdf') }}" class="block py-1.5 text-slate-600">Pecah PDF (Split)</a>
+                    <a href="{{ route('tools.compress-pdf') }}" class="block py-1.5 text-slate-600">Perkecil Ukuran PDF</a>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase mb-1">🔐 Enkripsi</p>
+                    <a href="{{ route('tools.encrypt.bcrypt') }}" class="block py-1.5 text-slate-600">Bcrypt</a>
+                    <a href="{{ route('tools.encrypt.base64') }}" class="block py-1.5 text-slate-600">Base64</a>
+                    <a href="{{ route('tools.encrypt.sha256') }}" class="block py-1.5 text-slate-600">SHA256</a>
+                    <a href="{{ route('tools.encrypt.md5') }}" class="block py-1.5 text-slate-600">MD5</a>
+                </div>
+
+                <div class="pt-3 border-t flex flex-col gap-2">
+                    @auth
+                        @if (auth()->user()->isAdmin())
+                            <a href="{{ route('admin.users.index') }}" class="font-semibold text-violet-700">👑 Admin Panel</a>
+                        @endif
+                        <a href="{{ route('member.dashboard') }}" class="font-semibold text-slate-700">📁 Member Area</a>
+                    @else
+                        <a href="{{ route('login') }}" class="font-semibold text-slate-700">Masuk</a>
+                        <a href="{{ route('register') }}" class="font-semibold text-indigo-600">Daftar</a>
+                    @endauth
+                </div>
+            </div>
         </div>
     </header>
 
